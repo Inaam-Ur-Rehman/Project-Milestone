@@ -4,10 +4,11 @@ import { Link } from "react-router-dom";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useMutation } from "@tanstack/react-query";
+import { registerAPI } from "../services/users/userServices";
 
 //! Validation
 const validationSchema = Yup.object({
-  userName: Yup.string().required("Name is Required"),
+  username: Yup.string().required("Username is Required"),
   email: Yup.string()
     .email("Invalid email address")
     .required("Email is Required"),
@@ -21,14 +22,11 @@ const validationSchema = Yup.object({
 
 const SignupForm = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [errors, setErrors] = useState(null);
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
-
-  const [userName, setUserName] = useState();
-  const [email, setEmail] = useState();
-  const [password, setPassword] = useState();
 
   /* const handleSubmit = (e) => {
     e.preventDefault();
@@ -42,11 +40,14 @@ const SignupForm = () => {
   }; */
 
   //! Mutation
-  useMutation;
+  const { mutateAsync, isPending, isError, error, isSuccess } = useMutation({
+    mutationFn: registerAPI,
+    mutationKey: ["register"],
+  });
 
   const formik = useFormik({
     initialValues: {
-      userName: "",
+      username: "",
       email: "",
       password: "",
       confirmPassword: "",
@@ -56,51 +57,54 @@ const SignupForm = () => {
     validationSchema,
     onSubmit: (values) => {
       console.log(values);
-      alert(JSON.stringify(values, null, 2));
+      // http request
+      mutateAsync(values)
+        .then((data) => console.log(data))
+        .catch((err) => {
+          setErrors(err.response.data.msg);
+        });
     },
   });
 
   return (
     <>
-      <div className="bg-gray-100 flex items-center justify-center min-h-screen">
+      <div className="flex items-center justify-center min-h-screen bg-gray-100">
         <div className="w-full max-w-md">
           <form
             onSubmit={formik.handleSubmit}
-            className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"
+            className="px-8 pt-6 pb-8 mb-4 bg-white rounded shadow-md"
           >
-            <h2 className="text-2xl font-bold mb-6 text-center">Sign Up</h2>
+            <h2 className="mb-6 text-2xl font-bold text-center">Sign Up</h2>
             <div className="mb-4">
               <label
-                className="block text-gray-700 text-sm font-bold mb-2"
+                className="block mb-2 text-sm font-bold text-gray-700"
                 htmlFor="username"
               >
                 Username
               </label>
               <input
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                className="w-full px-3 py-2 leading-tight text-gray-700 border rounded shadow appearance-none focus:outline-none focus:shadow-outline"
                 id="username"
                 type="text"
                 placeholder="Enter your full name"
-                onChange={(e) => setUserName(e.target.value)}
-                {...formik.getFieldProps("userName")}
+                {...formik.getFieldProps("username")}
               />
-              {formik.touched.userName && formik.errors.userName ? (
-                <div className="text-red-500">{formik.errors.userName}</div>
+              {formik.touched.username && formik.errors.username ? (
+                <div className="text-red-500">{formik.errors.username}</div>
               ) : null}
             </div>
             <div className="mb-4">
               <label
-                className="block text-gray-700 text-sm font-bold mb-2"
+                className="block mb-2 text-sm font-bold text-gray-700"
                 htmlFor="email"
               >
                 Email
               </label>
               <input
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                className="w-full px-3 py-2 leading-tight text-gray-700 border rounded shadow appearance-none focus:outline-none focus:shadow-outline"
                 id="email"
                 type="email"
                 placeholder="Email"
-                onChange={(e) => setEmail(e.target.value)}
                 {...formik.getFieldProps("email")}
               />
               {formik.touched.email && formik.errors.email ? (
@@ -109,18 +113,17 @@ const SignupForm = () => {
             </div>
             <div className="mb-6">
               <label
-                className="block text-gray-700 text-sm font-bold mb-2"
+                className="block mb-2 text-sm font-bold text-gray-700"
                 htmlFor="password"
               >
                 Password
               </label>
               <div className="relative">
                 <input
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700  leading-tight focus:outline-none focus:shadow-outline"
+                  className="w-full px-3 py-2 leading-tight text-gray-700 border rounded shadow appearance-none focus:outline-none focus:shadow-outline"
                   id="password"
                   type={showPassword ? "text" : "password"}
                   placeholder="******************"
-                  onChange={(e) => setPassword(e.target.value)}
                   {...formik.getFieldProps("password")}
                 />
                 {formik.touched.password && formik.errors.password ? (
@@ -137,18 +140,17 @@ const SignupForm = () => {
             </div>
             <div className="mb-6">
               <label
-                className="block text-gray-700 text-sm font-bold mb-2"
+                className="block mb-2 text-sm font-bold text-gray-700"
                 htmlFor="confirmPassword"
               >
                 Confirm Password
               </label>
               <div className="relative">
                 <input
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700  leading-tight focus:outline-none focus:shadow-outline"
+                  className="w-full px-3 py-2 leading-tight text-gray-700 border rounded shadow appearance-none focus:outline-none focus:shadow-outline"
                   id="confirmPassword"
                   type={showPassword ? "text" : "password"}
                   placeholder="******************"
-                  onChange={(e) => setPassword(e.target.value)}
                   {...formik.getFieldProps("confirmPassword")}
                 />
                 {formik.touched.confirmPassword &&
@@ -157,6 +159,7 @@ const SignupForm = () => {
                     {formik.errors.confirmPassword}
                   </div>
                 ) : null}
+
                 <button
                   type="button"
                   className="absolute inset-y-0 right-0 px-3 py-2 text-gray-600"
@@ -166,10 +169,15 @@ const SignupForm = () => {
                 </button>
               </div>
             </div>
+            {errors && (
+              <div className="text-red-500">
+                <p>{errors}</p>
+              </div>
+            )}
 
             <div className="flex items-center justify-between">
               <button
-                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                className="px-4 py-2 font-bold text-white bg-blue-500 rounded hover:bg-blue-700 focus:outline-none focus:shadow-outline"
                 type="submit"
                 // onClick={formik.handleSignup}
               >
@@ -178,7 +186,7 @@ const SignupForm = () => {
             </div>
             <Link to={"/login"}>Already a user? Login</Link>
           </form>
-          <p className="text-center text-gray-500 text-xs">
+          <p className="text-xs text-center text-gray-500">
             &copy;2024 Project Milestone. All rights reserved.
           </p>
         </div>

@@ -14,3 +14,9 @@ export const loginAPI = async ({ email, password }) => {
   //! Return a promise
   return response.data;
 };
+
+//! Register User
+export const registerAPI = async (values) => {
+  const response = await axios.post(`${BASE_URL}/register`, values);
+  return response.data;
+};

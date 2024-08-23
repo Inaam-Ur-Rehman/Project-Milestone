@@ -15,6 +15,7 @@ const validationSchema = Yup.object({
 
 const SignInForm = () => {
   const [passwordVisible, setPasswordVisible] = useState(false);
+  const [errors, setErrors] = useState(null);
 
   const togglePasswordVisibility = () => {
     setPasswordVisible(!passwordVisible);
@@ -40,7 +41,9 @@ const SignInForm = () => {
       // http request
       mutateAsync(values)
         .then((data) => console.log(data))
-        .catch((err) => console.log(err));
+        .catch((err) => {
+          setErrors(err.response.data.msg);
+        });
     },
   });
 
@@ -52,17 +55,17 @@ const SignInForm = () => {
         <div className="w-full max-w-xs">
           <form
             onSubmit={formik.handleSubmit}
-            className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"
+            className="px-8 pt-6 pb-8 mb-4 bg-white rounded shadow-md"
           >
             <div className="mb-4">
               <label
-                className="block text-gray-700 text-sm font-bold mb-2"
+                className="block mb-2 text-sm font-bold text-gray-700"
                 htmlFor="username"
               >
                 Username <span className="text-red-500">*</span>
               </label>
               <input
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                className="w-full px-3 py-2 leading-tight text-gray-700 border rounded shadow appearance-none focus:outline-none focus:shadow-outline"
                 id="username"
                 type="text"
                 placeholder="Email"
@@ -74,14 +77,14 @@ const SignInForm = () => {
             </div>
             <div className="mb-6">
               <label
-                className="block text-gray-700 text-sm font-bold mb-2"
+                className="block mb-2 text-sm font-bold text-gray-700"
                 htmlFor="password"
               >
                 Password <span className="text-red-500">*</span>
               </label>
               <div className="relative">
                 <input
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
+                  className="w-full px-3 py-2 mb-3 leading-tight text-gray-700 border rounded shadow appearance-none focus:outline-none focus:shadow-outline"
                   id="password"
                   type={passwordVisible ? "text" : "password"}
                   placeholder="******************"
@@ -99,9 +102,14 @@ const SignInForm = () => {
                 </button>
               </div>
             </div>
+            {errors && (
+              <div className="text-red-500">
+                <p>{errors}</p>
+              </div>
+            )}
             <div className="flex items-center justify-between">
               <button
-                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                className="px-4 py-2 font-bold text-white bg-blue-500 rounded hover:bg-blue-700 focus:outline-none focus:shadow-outline"
                 type="submit"
               >
                 Sign In
@@ -110,7 +118,7 @@ const SignInForm = () => {
             <Link to={"/register"}>New here? Register</Link>
           </form>
 
-          <p className="text-center text-gray-500 text-xs">
+          <p className="text-xs text-center text-gray-500">
             &copy;2024 Project Milestone. All rights reserved.
           </p>
         </div>
